@@ -1,5 +1,7 @@
 type Query {
+  company(id: ID!): Company
   jobs: [Job]
+  job(id: ID!): Job
 }
 
 """
@@ -20,6 +22,7 @@ type Company {
   id: ID!
   name: String!
   description: String
+  jobs: [Job!]
 }
 
 #regular comments
