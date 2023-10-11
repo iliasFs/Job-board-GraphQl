@@ -1,6 +1,7 @@
 import { getCompany } from "./db/companies.js";
 import { getJob, getJobs, getJobsByCompany } from "./db/jobs.js";
 import { GraphQLError } from "graphql";
+import { createJob } from "./db/jobs.js";
 
 export const resolvers = {
   Query: {
@@ -18,6 +19,13 @@ export const resolvers = {
         throw notFoundError("No company found with id: " + id);
       }
       return company;
+    },
+  },
+
+  Mutation: {
+    createJob: (_root, { input: { title, description } }) => {
+      const companyId = "FjcJCHJALA4i"; //TODO SET BASED ON USER
+      return createJob({ companyId, title, description });
     },
   },
 

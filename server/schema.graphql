@@ -4,6 +4,10 @@ type Query {
   job(id: ID!): Job
 }
 
+type Mutation {
+  createJob(input: CreateJobInput): Job
+}
+
 """
 Represents a job ad posted to our board
 """
@@ -25,4 +29,11 @@ type Company {
   jobs: [Job!]
 }
 
+input CreateJobInput {
+  title: String!
+  description: String
+}
+
 #regular comments
+
+#MUTATIONS
