@@ -38,10 +38,33 @@ export const resolvers = {
       const companyId = context.user.companyId; //TODO SET BASED ON USER
       return createJob({ companyId, title, description });
     },
-    deleteJob: (_root, { id }) => deleteJob(id),
+    deleteJob: async (_root, { id }, context) => {
+      if (!context.user) {
+        throw unauthorizedError("Missing authentication");
+      }
+      //we need to secure that the user belonging to one company should delete jobs only for that company and not others
 
-    updateJob: (_root, { input: { id, title, description } }) => {
-      return updateJob({ id, title, description });
+      const job = await deleteJob(id, context.user.companyId);
+      if (!job) {
+        throw notFoundError("No job found with id: " + id);
+      }
+      return job;
+    },
+
+    updateJob: async (
+      _root,
+      { input: { id, title, description } },
+      { user }
+    ) => {
+      if (!user) {
+        throw unauthorizedError("Missing authentication");
+      }
+      const companyId = user.companyId;
+      const job = await updateJob(id, companyId, title, description);
+      if (!job) {
+        throw notFoundError("No job found with id: " + id);
+      }
+      return job;
     },
   },
 
