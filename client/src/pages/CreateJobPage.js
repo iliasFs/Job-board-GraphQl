@@ -1,15 +1,34 @@
 import { useState } from "react";
-import { createJob } from "../graphql/mutations";
+import { createJobMutation } from "../graphql/mutations";
 import { useNavigate } from "react-router";
+import { useMutation } from "@apollo/client";
+import { jobByIdQuery } from "../graphql/mutations";
 
 function CreateJobPage() {
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
 
+  const [mutate, result] = useMutation(createJobMutation);
+  const { loading } = result;
+
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const job = await createJob({ title, description });
+    // const job = await createJob({ title, description });
+    const {
+      data: { job },
+    } = await mutate({
+      variables: {
+        input: { title, description },
+      },
+      update: (cache, result) => {
+        cache.writeQuery({
+          query: jobByIdQuery,
+          variables: { id: result.data.job.id },
+          data: result.data,
+        });
+      },
+    });
     console.log("should post a new job:", { title, description });
     navigate(`/jobs/${job.id}`);
   };
@@ -43,7 +62,11 @@ function CreateJobPage() {
           </div>
           <div className="field">
             <div className="control">
-              <button className="button is-link" onClick={handleSubmit}>
+              <button
+                className="button is-link"
+                onClick={handleSubmit}
+                disabled={loading}
+              >
                 Submit
               </button>
             </div>

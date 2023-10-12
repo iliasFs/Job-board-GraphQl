@@ -8,3 +8,11 @@ export default function useCompany(id) {
 
   return { company: data?.company, loading, error: Boolean(error) };
 }
+
+export function useJob(id) {
+  const { data, loading, error } = useQuery(companyBiIdQuery, {
+    variables: { id },
+  });
+
+  return { job: data?.job, loading, error: Boolean(error) };
+}
