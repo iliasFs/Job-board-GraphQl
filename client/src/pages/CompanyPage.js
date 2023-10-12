@@ -1,13 +1,14 @@
 import { useParams } from "react-router";
-import { companyBiIdQuery } from "../graphql/queries";
 import JobList from "../components/JobList";
-import { useQuery } from "@apollo/client";
+import useCompany from "../graphql/hooks";
 
 function CompanyPage() {
   const { companyId } = useParams();
-  const { data, loading, error } = useQuery(companyBiIdQuery, {
-    variables: { id: companyId },
-  });
+  // const { data, loading, error } = useQuery(companyBiIdQuery, {
+  //   variables: { id: companyId },
+
+  const { company, loading, error } = useCompany(companyId);
+  // });
 
   // const [state, setState] = useState({
   //   company: null,
@@ -26,7 +27,7 @@ function CompanyPage() {
   //   })();
   // }, [companyId]);
 
-  console.log("[Company Page]", { data, loading, error });
+  console.log("[Company Page]", { company, loading, error });
 
   if (loading) {
     return <div>Loading</div>;
@@ -35,7 +36,6 @@ function CompanyPage() {
     return <div className="has-text-danger">Data unavailable...</div>;
   }
 
-  const { company } = data;
   return (
     <div>
       <h1 className="title">{company.name}</h1>
