@@ -7,6 +7,7 @@ import {
   InMemoryCache,
   concat,
 } from "@apollo/client";
+import { jobByIdQuery } from "./mutations";
 
 // const client = new GraphQLClient("http://localhost:9000/graphql");
 
@@ -24,28 +25,24 @@ const authLink = new ApolloLink((operation, forward) => {
 const apolloClient = new ApolloClient({
   link: concat(authLink, httpLink),
   cache: new InMemoryCache(),
+  // defaultOptions: {
+  //   query: {
+  //     fetchPolicy: "cache-first",
+  //   },
+  //    watchQuery: {
+  //     fetchPolicy: "network-only",
+  //    },
+  // },
 });
 
 export async function getJob(id) {
-  const query = gql`
-    query JobById($id: ID!) {
-      job(id: $id) {
-        id
-        date
-        title
-        description
-        company {
-          id
-          name
-        }
-      }
-    }
-  `;
-
   // const data = await client.request(query, { id: id });
   // return data.job;
 
-  const result = await apolloClient.query({ query, variables: { id } });
+  const result = await apolloClient.query({
+    query: jobByIdQuery,
+    variables: { id },
+  });
   return result.data.job;
 }
 
@@ -64,7 +61,10 @@ export async function getJobs() {
     }
   `;
 
-  const result = await apolloClient.query({ query });
+  const result = await apolloClient.query({
+    query,
+    fetchPolicy: "network-only",
+  });
   return result.data.jobs;
 }
 

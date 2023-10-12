@@ -1,4 +1,3 @@
-import { GraphQLClient } from "graphql-request";
 import { getAccessToken } from "../lib/auth";
 import {
   ApolloClient,
@@ -36,11 +35,32 @@ const apolloClient = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
+export const jobByIdQuery = gql`
+  query JobById($id: ID!) {
+    job(id: $id) {
+      id
+      date
+      title
+      description
+      company {
+        id
+        name
+      }
+    }
+  }
+`;
+
 export async function createJob({ title, description }) {
   const mutation = gql`
     mutation CreateJob($input: CreateJobInput!) {
       job: createJob(input: $input) {
         id
+        title
+        description
+        company {
+          id
+          name
+        }
       }
     }
   `;
@@ -48,6 +68,13 @@ export async function createJob({ title, description }) {
   const result = await apolloClient.mutate({
     mutation,
     variables: { input: { title, description } },
+    update: (cache, result) => {
+      cache.writeQuery({
+        query: jobByIdQuery,
+        variables: { id: result.data.job.id },
+        data: result.data,
+      });
+    },
   });
 
   return result.data.job;
